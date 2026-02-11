@@ -13,10 +13,31 @@ const FundsPay = ({ navigation }) => {
   const [amount, setAmount] = useState("");
 
   const dispatch = useDispatch();
-  const {balance} = useSelector(state => state.cards);
+  const { balance = 0 } = useSelector(state => state.cards);
 
   console.log("funds balance" , balance)
-  
+   const { transactionList = [] } = useSelector(
+    state => state.transaction
+  );
+
+  // ✅ Calculate balance after transactions
+  const totalTransactionAmount = transactionList.reduce(
+    (sum, item) => {
+      // Only subtract debit transactions
+      if (item.type === "credit") {
+        return sum + Number(item.amount);
+      }
+      return sum;
+    },
+    0
+  );
+  console.log("totalTransactionAmount", totalTransactionAmount);
+
+  // ✅ Final balance
+  const finalBalance = balance - totalTransactionAmount;
+
+  console.log("finalBalance", finalBalance);
+
 
   const handleFunds = () => {
     if (!amount || Number(amount) <= 0) return;
@@ -28,8 +49,15 @@ const FundsPay = ({ navigation }) => {
 
   return (
     <View style={styles.form}>
+      <Text style={styles.balanceText}>
+        Total Balance: ${balance.toFixed(2)}
+      </Text>
+
+      <Text style={styles.balanceAfterText}>
+        After Transactions: ${totalTransactionAmount.toFixed(2)}
+      </Text>
       <TextInput
-        placeholder={`Current balance: ${balance}`}
+        placeholder={`Current balance: ${totalTransactionAmount}`}
         value={amount}
         onChangeText={setAmount}
         placeholderTextColor="#999"
@@ -48,6 +76,19 @@ export default FundsPay;
 
 
 const styles = StyleSheet.create({
+  balanceText: {
+  fontSize: 18,
+  fontWeight: "600",
+  marginTop: 40,
+  textAlign: "center",
+},
+
+balanceAfterText: {
+  fontSize: 16,
+  marginTop: 10,
+  textAlign: "center",
+  color: "#408782",
+},
     inputFull: {
     width: "95%",
     height: 52,

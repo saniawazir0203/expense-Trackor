@@ -3,9 +3,35 @@ import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from "react-native
 import Ionicons from "react-native-vector-icons/Ionicons";
 import TransactionHistory from "../components/transactionHistory";
 import UpcomingBills from "../components/upcomingBills";
+import { useSelector } from "react-redux";
 
 const WalletScreen = ({navigation}) =>{
     const [activeTab, setActiveTab] = useState("Transaction");
+    const { balance = 0 } = useSelector(state => state.cards);
+    
+    const { transactionList = [] } = useSelector(
+    state => state.transaction
+  );
+   const totalTransactionAmount = transactionList.reduce(
+    (sum, item) => {
+      // Only subtract debit transactions
+      if (item.type === "credit") {
+        return sum + Number(item.amount);
+      }
+      return sum;
+    },
+    0
+  );
+
+
+console.log("totalTransactionAmount", totalTransactionAmount);
+
+  // ✅ Final balance
+  const finalBalance = balance - totalTransactionAmount;
+
+  console.log("finalBalance", finalBalance);
+
+
     return(
         <View style={styles.mainContainer}>
            <View style={styles.headerBackground}>
@@ -32,7 +58,8 @@ const WalletScreen = ({navigation}) =>{
                     Total Balance
                 </Text>
                 <Text style={styles.subtitle}>
-                    $2,548.00
+                    ${finalBalance.toFixed(2)}
+
                 </Text>
             </View>
             <View style={styles.buttons}>
